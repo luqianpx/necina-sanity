@@ -29,23 +29,28 @@ import {
   Maximize2
 } from 'lucide-react';
 import type { Locale } from '../types';
-import { EVENTS_LIST, getEventBySlug } from '../officialContent';
+import { EVENTS_LIST } from '../officialContent';
+import { useSanityEvents } from '../services/sanityEvents';
 
 interface EventDetailPageProps {
   locale: Locale;
   defaultView?: 'overview' | 'poster';
+  dataSource?: 'local' | 'sanity';
 }
 
 export const EventDetailPage: React.FC<EventDetailPageProps> = ({
   locale,
-  defaultView = 'overview'
+  defaultView = 'overview',
+  dataSource = 'local'
 }) => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const isZh = locale === 'zh';
 
-  const event = slug ? getEventBySlug(slug) : undefined;
+  const sanity = useSanityEvents(dataSource === 'sanity');
+  const allEvents = dataSource === 'sanity' ? sanity.events : EVENTS_LIST;
+  const event = slug ? allEvents.find((e) => e.slug === slug || e.id === slug) : undefined;
 
   // View mode: 'overview' or 'poster'
   const initialView = defaultView === 'poster' || searchParams.get('view') === 'poster' ? 'poster' : 'overview';
@@ -169,6 +174,10 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
     };
   }, [event, isZh, viewMode]);
 
+  if (dataSource === 'sanity' && sanity.loading) {
+    return <div className="min-h-screen pt-40 text-center text-slate-400">Loading…</div>;
+  }
+
   if (!event) {
     return (
       <div className="min-h-screen bg-slate-950 text-white pt-36 pb-24 flex flex-col items-center justify-center px-4">
@@ -197,9 +206,9 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
   }
 
   // Find index for next/previous navigation
-  const currentIndex = EVENTS_LIST.findIndex((e) => e.id === event.id);
-  const prevEvent = currentIndex > 0 ? EVENTS_LIST[currentIndex - 1] : undefined;
-  const nextEvent = currentIndex < EVENTS_LIST.length - 1 ? EVENTS_LIST[currentIndex + 1] : undefined;
+  const currentIndex = allEvents.findIndex((e) => e.id === event.id);
+  const prevEvent = currentIndex > 0 ? allEvents[currentIndex - 1] : undefined;
+  const nextEvent = currentIndex < allEvents.length - 1 ? allEvents[currentIndex + 1] : undefined;
 
   const posterSrc = event.posterImage || event.image || '/yes 2026.jpg';
   const photoSrc = event.photoImage || event.image || '/yes 2026.jpg';

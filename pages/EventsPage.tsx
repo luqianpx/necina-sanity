@@ -4,13 +4,17 @@ import { motion } from 'framer-motion';
 import { Calendar, MapPin, Bell, Clock, ArrowRight, CheckCircle2, ExternalLink, Image as ImageIcon } from 'lucide-react';
 import type { Locale } from '../types';
 import { EVENTS_LIST } from '../officialContent';
+import { useSanityEvents } from '../services/sanityEvents';
 
 interface EventsPageProps {
   locale: Locale;
+  dataSource?: 'local' | 'sanity';
 }
 
-export const EventsPage: React.FC<EventsPageProps> = ({ locale }) => {
+export const EventsPage: React.FC<EventsPageProps> = ({ locale, dataSource = 'local' }) => {
   const isZh = locale === 'zh';
+  const sanity = useSanityEvents(dataSource === 'sanity');
+  const allEvents = dataSource === 'sanity' ? sanity.events : EVENTS_LIST;
   const [searchParams, setSearchParams] = useSearchParams();
   const paramCategory = searchParams.get('category');
   const paramTab = searchParams.get('tab');
@@ -59,7 +63,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ locale }) => {
     { id: 'Entrepreneurship', label: isZh ? '商业领袖' : 'Entrepreneurship' },
   ];
 
-  const filteredEvents = EVENTS_LIST.filter(ev => {
+  const filteredEvents = allEvents.filter(ev => {
     const matchesTab = ev.status === activeTab;
     const matchesCat = selectedCategory === 'all' || ev.category === selectedCategory;
     return matchesTab && matchesCat;
@@ -178,7 +182,16 @@ export const EventsPage: React.FC<EventsPageProps> = ({ locale }) => {
       {/* 2. EVENT LISTINGS */}
       <section className="py-20 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {filteredEvents.length === 0 ? (
+          {dataSource === 'sanity' && (
+            <div className="mb-8 px-4 py-3 rounded-2xl border border-amber-400/40 bg-amber-400/10 text-sm text-amber-200">
+              {sanity.loading
+                ? 'Sanity trial: loading events…'
+                : sanity.error
+                  ? `Sanity trial: failed to load (${sanity.error})`
+                  : `Sanity trial: ${sanity.events.length} events loaded from Sanity`}
+            </div>
+          )}
+          {sanity.loading && dataSource === 'sanity' ? null : filteredEvents.length === 0 ? (
             <div className="text-center py-20 bg-slate-900/40 rounded-3xl border border-white/10 space-y-4">
               <Clock className="w-10 h-10 text-slate-500 mx-auto" />
               <h3 className="text-xl font-bold text-slate-300">

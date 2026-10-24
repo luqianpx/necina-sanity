@@ -86,6 +86,10 @@ const App: React.FC = () => {
           <Route path="/events" element={<EventsPage locale={locale} />} />
           <Route path="/events/:slug" element={<EventDetailPage locale={locale} />} />
           <Route path="/events/:slug/poster" element={<EventDetailPage locale={locale} defaultView="poster" />} />
+          {/* Sanity trial: same pages, data read from Sanity. Original routes above are unchanged. */}
+          <Route path="/sanity/events" element={<EventsPage locale={locale} dataSource="sanity" />} />
+          <Route path="/sanity/events/:slug" element={<EventDetailPage locale={locale} dataSource="sanity" />} />
+          <Route path="/sanity/events/:slug/poster" element={<EventDetailPage locale={locale} defaultView="poster" dataSource="sanity" />} />
           <Route path="/media" element={<MediaPage locale={locale} />} />
           <Route path="/get-involved" element={<GetInvolvedPage locale={locale} />} />
           <Route path="/anniversary" element={<AnniversaryPage locale={locale} />} />
