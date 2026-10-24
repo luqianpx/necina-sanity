@@ -1,6 +1,10 @@
 # Sanity events trial
 
-Step-by-step guide for admins who publish events (Chinese): [`docs/HOW_TO_PUBLISH_EVENTS.md`](docs/HOW_TO_PUBLISH_EVENTS.md).
+Docs in `docs/`:
+
+- [`SANITY_TRIAL_TECH_SUMMARY.md`](docs/SANITY_TRIAL_TECH_SUMMARY.md): what changed, why, what was tested, known limits (for technical review)
+- [`HOW_TO_PUBLISH_EVENTS.md`](docs/HOW_TO_PUBLISH_EVENTS.md): full admin tutorial (Chinese)
+- [`ADMIN_QUICKSTART.md`](docs/ADMIN_QUICKSTART.md): one-page admin version (Chinese)
 
 This branch adds a Sanity-backed copy of the events pages for comparison with the
 original, file-based version. The original pages and routes are unchanged.
