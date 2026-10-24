@@ -39,6 +39,8 @@ Sanity was picked because it needed the least code to produce something testable
 
 Only 43 changed lines touch existing components. The rest is new files.
 
+A second commit adds `docs/` (this file, the admin tutorial, the admin quick-start). A third adds `studio/`: a Sanity Studio with its own `package.json` (`sanity@^6.20`, React 19, styled-components), `sanity.config.ts`, `sanity.cli.ts`, and `schemaTypes/index.ts` that imports the shared `../../sanity/schemaTypes/event.mjs`, so there is one schema file for the site, the seed script and the Studio. `studio/node_modules` and `studio/dist` are ignored.
+
 ### 3.1 Data access (`services/sanityEvents.ts`)
 
 - Plain `fetch` against `https://<projectId>.apicdn.sanity.io/v2024-01-01/data/query/<dataset>` with a GROQ query. No `@sanity/client` dependency added, so `package.json` is untouched.
@@ -97,7 +99,7 @@ Environment note: on the BMS network, Node needed `NODE_USE_ENV_PROXY=1` and `NO
 
 - `/sanity/events/:slug` detail and `/poster` views in a browser (code path is shared with the original page, but the async loading branch is new)
 - Chinese locale rendering of Sanity-sourced content
-- Sanity Studio itself: not created yet. The schema file has not been loaded into a running Studio, so field validation callbacks and the `.mjs` import into a TypeScript Studio project are unverified.
+- Studio: `npm install` in `studio/` succeeds (894 packages), `npx sanity schema validate` reports 0 errors / 0 warnings, and `npm run dev` serves `localhost:3333` (HTTP 200). Creating or editing a document through the Studio UI, and `sanity deploy`, have not been exercised yet.
 - Vercel preview deployment (needs `VITE_SANITY_*` env vars and the preview domain added to CORS)
 - Behaviour when Sanity is unreachable: the page shows the error banner and an empty list; there is no fallback to the local data by design, so the two versions stay distinguishable
 
@@ -122,7 +124,7 @@ Environment note: on the BMS network, Node needed `NODE_USE_ENV_PROXY=1` and `NO
 2. Decide whether `EVENTS_LIST` stays as an offline fallback or is removed.
 3. Compute `status` from `startDate` and order by it; remove `sortOrder` or keep it as a manual override.
 4. Add `VITE_SANITY_PROJECT_ID` / `VITE_SANITY_DATASET` to Vercel; add the production and preview domains to CORS origins.
-5. Create and deploy Studio (`npx sanity deploy`), invite admins, hand them `docs/HOW_TO_PUBLISH_EVENTS.md` or `docs/ADMIN_QUICKSTART.md`.
+5. Deploy Studio (`cd studio && npx sanity login && npx sanity deploy`), invite admins, hand them `docs/HOW_TO_PUBLISH_EVENTS.md` or `docs/ADMIN_QUICKSTART.md`.
 6. Consider a `@sanity/client` + `@sanity/image-url` dependency for hotspot/crop and typed queries once the approach is settled; the raw `fetch` was deliberate for the trial.
 
 ## 8. How to review locally

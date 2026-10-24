@@ -20,6 +20,7 @@ original, file-based version. The original pages and routes are unchanged.
 - `pages/EventsPage.tsx`, `pages/EventDetailPage.tsx`: new optional `dataSource` prop (default `local`, so the original behaviour is unchanged).
 - `App.tsx`: three new `/sanity/...` routes.
 - `sanity/schemaTypes/event.mjs`: Studio schema, field names mirror `OfficialEvent`.
+- `studio/`: Sanity Studio (own `package.json`; `sanity.config.ts`, `sanity.cli.ts`, `schemaTypes/index.ts` importing the shared schema).
 - `scripts/seed-sanity.mjs`: one-time import of `EVENTS_LIST` (images are uploaded from `public/`, remote URLs are downloaded first).
 
 ## Setup
@@ -27,12 +28,11 @@ original, file-based version. The original pages and routes are unchanged.
 1. Create a Sanity project at [sanity.io/manage](https://www.sanity.io/manage). Note the **project ID**.
 2. Make the dataset `production` **public**. This is required for anonymous reads on the free plan.
 3. Add the site origin (`http://localhost:3000`, and later the production domain) under **CORS origins** in Sanity manage. Without this, the browser shows "Failed to fetch".
-4. Create the Studio (separate folder, outside this repo is fine):
+4. Run the Studio, which lives in `studio/` and imports the shared schema from `sanity/schemaTypes/event.mjs`:
    ```bash
-   npm create sanity@latest -- --project <PROJECT_ID> --dataset production --template clean
+   cd studio && npm install && npm run dev
    ```
-   Copy `sanity/schemaTypes/event.mjs` into the Studio's `schemaTypes/` folder and register it in `schemaTypes/index`.
-   Run `npm run dev` in the Studio folder to open the editor at `localhost:3333`, or deploy it with `npx sanity deploy`.
+   Opens the editor at `localhost:3333` (first visit asks you to log in to Sanity). `npx sanity schema validate` checks the schema; `npx sanity login && npx sanity deploy` publishes the Studio to `<name>.sanity.studio`.
 5. Create a write token: Sanity manage → API → Tokens → Editor. Keep it private.
 6. Seed the data (dry run first):
    ```bash

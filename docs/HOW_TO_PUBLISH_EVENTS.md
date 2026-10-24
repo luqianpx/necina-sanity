@@ -47,49 +47,38 @@ Sanity 项目信息：
    
    不要勾选 "Allow credentials"。缺少这一步时，网站会显示 `Failed to fetch`。
 
-### 2. 创建 Sanity Studio（编辑后台）
+### 2. Studio 已在仓库里
 
-Studio 是管理人员用来编辑活动的网页。它是一个独立的小项目，建议放在本仓库以外的文件夹。
+Studio 是管理人员用来编辑活动的网页。它已经放在本仓库的 `studio/` 文件夹里，不需要另外创建：
 
-```bash
-npm create sanity@latest -- --project 3p40dgwx --dataset production --template clean
-```
+- `studio/sanity.config.ts`：项目 ID、数据集、插件
+- `studio/schemaTypes/index.ts`：引用仓库根目录的 `sanity/schemaTypes/event.mjs`
 
-过程中会要求在浏览器登录 Sanity，并询问项目文件夹名称（例如 `necina-studio`）。
+字段定义只有 `sanity/schemaTypes/event.mjs` 一份，网站、导入脚本和 Studio 共用。它和网站代码里的 `OfficialEvent` 类型一一对应，以后要加字段，两边都要改。
 
-### 3. 放入活动的字段定义（schema）
-
-把本仓库的 `sanity/schemaTypes/event.mjs` 复制到 Studio 项目中，并注册：
+### 3. 安装 Studio 依赖
 
 ```bash
-cp sanity/schemaTypes/event.mjs <studio目录>/schemaTypes/event.js
+cd studio && npm install
 ```
 
-编辑 `<studio目录>/schemaTypes/index.ts`，改成：
-
-```ts
-import event from './event.js';
-
-export const schemaTypes = [event];
-```
-
-字段定义和网站代码里的 `OfficialEvent` 类型一一对应。以后要加字段，两边都要改。
+只需做一次。可选的检查：`npx sanity schema validate` 应报告 0 errors。
 
 ### 4. 本地运行并检查 Studio
 
 ```bash
-cd <studio目录> && npm run dev
+cd studio && npm run dev
 ```
 
-浏览器打开 <http://localhost:3333>，登录后左侧应出现 **Event** 类型，里面能看到已导入的 6 个活动。
+浏览器打开 <http://localhost:3333>，首次会要求登录 Sanity（Google / GitHub / 邮箱均可，用被邀请的那个邮箱）。登录后左侧应出现 **Event** 类型，里面能看到已导入的 6 个活动。
 
 ### 5. 部署 Studio，让管理人员在任何地方都能用
 
 ```bash
-cd <studio目录> && npx sanity deploy
+cd studio && npx sanity login && npx sanity deploy
 ```
 
-会要求选择一个子域名，例如 `necina`，部署后的地址是 `https://necina.sanity.studio`。
+`sanity login` 只在第一次需要，会打开浏览器让你登录。`deploy` 会要求选择一个子域名，例如 `necina`，部署后的地址是 `https://necina.sanity.studio`。
 把这个地址发给管理人员。部署后的 Studio 的 CORS 会由 Sanity 自动管理，不用手动加。
 
 以后修改了字段定义，重新运行一次 `npx sanity deploy` 即可。
